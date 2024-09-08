@@ -1,0 +1,76 @@
+name: CI
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+jobs:
+  unit_tests:
+    name: unit tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            rev: nightly/nvim-linux64.tar.gz
+          - os: ubuntu-22.04
+            rev: v0.9.0/nvim-linux64.tar.gz
+    steps:
+      - uses: actions/checkout@v3
+      - run: date +%F > todays-date
+      - name: Restore from todays cache
+        uses: actions/cache@v3
+        with:
+          path: _neovim
+          key: ${{ runner.os }}-${{ matrix.rev }}-${{ hashFiles('todays-date') }}
+
+      - name: Prepare
+        run: |
+          test -d _neovim || {
+            mkdir -p _neovim
+            curl -sL "https://github.com/neovim/neovim/releases/download/${{ matrix.rev }}" | tar xzf - --strip-components=1 -C "${PWD}/_neovim"
+          }
+      - name: Dependencies
+        run: |
+          git clone --depth 1 https://github.com/nvim-lua/plenary.nvim ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim
+          ln -s "$(pwd)" ~/.local/share/nvim/site/pack/vendor/start
+      - name: Run tests
+        run: |
+          export PATH="${PWD}/_neovim/bin:${PATH}"
+          nvim --version
+          make test
+  format:
+    name: Stylua
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: date +%W > weekly
+
+      - name: Restore cache
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin
+          key: ${{ runner.os }}-cargo-${{ hashFiles('weekly') }}
+
+      - name: Install
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: cargo install stylua
+
+      - name: Format
+        run: make fmt-check
+  lint:
+    name: Luacheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup
+        run: |
+          sudo apt-get update
+          sudo apt-get install luarocks -y
+          sudo luarocks install luacheck
+
+      - name: Lint
+        run: make lint
