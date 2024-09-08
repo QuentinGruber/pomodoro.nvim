@@ -29,6 +29,19 @@ local function set_exit_key(buffer, mode, key)
         { noremap = true, silent = true }
     )
 end
+-- Set an exit key for a buffer
+---@param buffer integer --
+---@param mode string --
+---@param key string --
+local function set_command_key(buffer, mode, key, command)
+    vim.api.nvim_buf_set_keymap(
+        buffer,
+        mode,
+        key,
+        string.format(":%s<CR>", command),
+        { noremap = true, silent = true }
+    )
+end
 -- Apply custom keymaps to a buffer
 ---@param buffer integer --
 local function apply_buffer_keymaps(buffer)
@@ -41,6 +54,10 @@ local function apply_buffer_keymaps(buffer)
     disable_key(buffer, "n", "r")
     disable_key(buffer, "n", "u")
     disable_key(buffer, "n", "<C-r>")
+    set_command_key(buffer, "n", "<C-q>", "PomodoroStop")
+    set_command_key(buffer, "n", "<C-s>", "PomodoroSkipBreak")
+    -- TODO:
+    set_command_key(buffer, "n", "<C-y>", "PomodoroAddTime")
 end
 ---@return integer
 local function createBufferUi()
