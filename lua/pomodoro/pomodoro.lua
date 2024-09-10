@@ -99,7 +99,11 @@ function pomodoro.registerCmds()
     vim.api.nvim_create_user_command("PomodoroSkipBreak", pomodoro.endBreak, {})
     vim.api.nvim_create_user_command("PomodoroStart", pomodoro.start, {})
     vim.api.nvim_create_user_command("PomodoroStop", pomodoro.stop, {})
-    vim.api.nvim_create_user_command("PomodoroDelayBreak", pomodoro.delayBreak, {})
+    vim.api.nvim_create_user_command(
+        "PomodoroDelayBreak",
+        pomodoro.delayBreak,
+        {}
+    )
     vim.api.nvim_create_user_command(
         "PomodoroUI",
         pomodoro.displayPomodoroUI,

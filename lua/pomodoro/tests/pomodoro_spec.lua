@@ -13,10 +13,7 @@ describe("useless tests", function()
         pomodoro.setup(opts)
         assert(pomodoro.work_duration == 10 * MIN_IN_MS, "Opt work_duration")
         assert(pomodoro.break_duration == 10 * MIN_IN_MS, "Opt break_duration")
-        assert(
-            pomodoro.delay_duration == 10 * MIN_IN_MS,
-            "Opt delay_duration"
-        )
+        assert(pomodoro.delay_duration == 10 * MIN_IN_MS, "Opt delay_duration")
         assert(pomodoro.start_at_launch == false, "Opt start_at_launch")
     end)
     --TODO: tests
