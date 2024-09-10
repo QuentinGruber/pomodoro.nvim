@@ -20,19 +20,6 @@ end
 ---@param buffer integer --
 ---@param mode string --
 ---@param key string --
-local function set_exit_key(buffer, mode, key)
-    vim.api.nvim_buf_set_keymap(
-        buffer,
-        mode,
-        key,
-        "<Cmd>bd!<CR>",
-        { noremap = true, silent = true }
-    )
-end
--- Set an exit key for a buffer
----@param buffer integer --
----@param mode string --
----@param key string --
 local function set_command_key(buffer, mode, key, command)
     vim.api.nvim_buf_set_keymap(
         buffer,
@@ -45,19 +32,16 @@ end
 -- Apply custom keymaps to a buffer
 ---@param buffer integer --
 local function apply_buffer_keymaps(buffer)
-    set_exit_key(buffer, "n", "q")
-    set_exit_key(buffer, "n", "<C-h>")
-    set_exit_key(buffer, "n", "<C-l>")
     disable_key(buffer, "n", "d")
     disable_key(buffer, "n", "i")
     disable_key(buffer, "n", "v")
     disable_key(buffer, "n", "r")
     disable_key(buffer, "n", "u")
     disable_key(buffer, "n", "<C-r>")
-    set_command_key(buffer, "n", "<C-q>", "PomodoroStop")
-    set_command_key(buffer, "n", "<C-s>", "PomodoroSkipBreak")
-    -- TODO:
-    set_command_key(buffer, "n", "<C-y>", "PomodoroAddTime")
+    set_command_key(buffer, "n", "Q", "PomodoroStop")
+    set_command_key(buffer, "n", "W", "PomodoroSkipBreak")
+    set_command_key(buffer, "n", "B", "PomodoroForceBreak")
+    set_command_key(buffer, "n", "S", "PomodoroSnooze")
 end
 ---@return integer
 local function createBufferUi()
@@ -107,28 +91,27 @@ end
 
 ---@param pomodoro Pomodoro
 function UI.get_buffer_data(pomodoro)
-    local time_left = pomodoro.getTimeLeftPhase()
+    local time_pass = vim.uv.now() - pomodoro.started_timer_time
+    local time_left = pomodoro.timer_duration - time_pass
     local time_left_string
-    if time_left > MIN_IN_MS then
-        time_left_string = math.floor(time_left / MIN_IN_MS)
-            .. "min"
-            .. math.floor(time_left % MIN_IN_MS / 1000)
-            .. "sec"
-    else
-        time_left_string = "Time left : "
-            .. math.floor(time_left / 1000)
-            .. "sec"
-    end
+    time_left_string = math.floor(time_left / MIN_IN_MS)
+        .. "min"
+        .. math.floor(time_left % MIN_IN_MS / 1000)
+        .. "sec"
     local data = {}
     if pomodoro.phase == Phases.RUNNING then
         table.insert(data, spaces(7) .. "[WORK]")
         table.insert(data, spaces(4) .. "Time to work !")
+        table.insert(data, spaces(5) .. time_left_string)
+        table.insert(data, spaces(2) .. "[B] Break [Q] Stop")
     end
     if pomodoro.phase == Phases.BREAK then
         table.insert(data, spaces(7) .. "[BREAK]")
         table.insert(data, spaces(1) .. "Time to take a break !")
+        table.insert(data, spaces(5) .. time_left_string)
+        table.insert(data, "[W] Work [Q] Stop")
+        table.insert(data, "[S] Snooze")
     end
-    table.insert(data, spaces(5) .. time_left_string)
     return data
 end
 function UI.isWinOpen()

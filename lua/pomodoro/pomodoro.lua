@@ -6,6 +6,7 @@ local Phases = constants.Phases
 ---@class Pomodoro
 ---@field work_duration number
 ---@field break_duration number
+---@field timer_duration number
 ---@field start_at_launch boolean
 ---@field timer uv_timer_t
 ---@field phase integer
@@ -15,6 +16,7 @@ local pomodoro = {}
 pomodoro.work_duration = 25 * MIN_IN_MS
 -- Break duration in ms
 pomodoro.break_duration = 5 * MIN_IN_MS
+pomodoro.timer_duration = 0
 pomodoro.start_at_launch = true
 pomodoro.timer = vim.uv.new_timer()
 pomodoro.started_timer_time = vim.uv.now()
@@ -24,21 +26,11 @@ pomodoro.phase = Phases.NOT_RUNNING
 ---@param fn function
 function pomodoro.startTimer(time, fn)
     pomodoro.timer:stop()
+    pomodoro.timer_duration = time
     pomodoro.started_timer_time = vim.uv.now()
     pomodoro.timer:start(time, 0, fn)
 end
 
----@return number
-function pomodoro.getTimeLeftPhase()
-    local time_pass = vim.uv.now() - pomodoro.started_timer_time
-    if pomodoro.phase == Phases.RUNNING then
-        return pomodoro.work_duration - time_pass
-    end
-    if pomodoro.phase == Phases.BREAK then
-        return pomodoro.break_duration - time_pass
-    end
-    return 0
-end
 ---@return boolean
 
 function pomodoro.displayPomodoroUI()
@@ -82,6 +74,14 @@ function pomodoro.start()
     pomodoro.startTimer(pomodoro.work_duration, pomodoro.startBreak)
 end
 
+function pomodoro.snooze()
+    if pomodoro.phase == Phases.BREAK then
+        pomodoro.phase = Phases.RUNNING
+        pomodoro.closePomodoroUi()
+        pomodoro.startTimer(MIN_IN_MS, pomodoro.startBreak)
+    end
+end
+
 function pomodoro.stop()
     pomodoro.timer:stop()
     UI.ui_update_timer:stop()
@@ -97,6 +97,7 @@ function pomodoro.registerCmds()
     vim.api.nvim_create_user_command("PomodoroSkipBreak", pomodoro.endBreak, {})
     vim.api.nvim_create_user_command("PomodoroStart", pomodoro.start, {})
     vim.api.nvim_create_user_command("PomodoroStop", pomodoro.stop, {})
+    vim.api.nvim_create_user_command("PomodoroSnooze", pomodoro.snooze, {})
     vim.api.nvim_create_user_command(
         "PomodoroUI",
         pomodoro.displayPomodoroUI,
