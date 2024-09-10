@@ -16,6 +16,8 @@ local pomodoro = {}
 pomodoro.work_duration = 25 * MIN_IN_MS
 -- Break duration in ms
 pomodoro.break_duration = 5 * MIN_IN_MS
+-- Snooze duration in ms
+pomodoro.snooze_duration = 1 * MIN_IN_MS
 pomodoro.timer_duration = 0
 pomodoro.start_at_launch = true
 pomodoro.timer = vim.uv.new_timer()
@@ -108,6 +110,7 @@ end
 ---@class PomodoroOpts
 ---@field work_duration? number
 ---@field break_duration? number
+---@field snooze_duration? number
 ---@field start_at_launch? boolean
 
 ---@param opts PomodoroOpts
@@ -119,7 +122,9 @@ function pomodoro.setup(opts)
         if opts.break_duration ~= nil then
             pomodoro.break_duration = opts.break_duration * MIN_IN_MS
         end
-
+        if opts.snooze_duration ~= nil then
+            pomodoro.snooze_duration = opts.snooze_duration * MIN_IN_MS
+        end
         if opts.start_at_launch ~= nil then
             pomodoro.start_at_launch = opts.start_at_launch
         end

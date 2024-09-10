@@ -8,10 +8,15 @@ describe("useless tests", function()
         local MIN_IN_MS = 60000
         opts.work_duration = 10
         opts.break_duration = 10
+        opts.snooze_duration = 10
         opts.start_at_launch = false
         pomodoro.setup(opts)
         assert(pomodoro.work_duration == 10 * MIN_IN_MS, "Opt work_duration")
         assert(pomodoro.break_duration == 10 * MIN_IN_MS, "Opt break_duration")
+        assert(
+            pomodoro.snooze_duration == 10 * MIN_IN_MS,
+            "Opt snooze_duration"
+        )
         assert(pomodoro.start_at_launch == false, "Opt start_at_launch")
     end)
     --TODO: tests
