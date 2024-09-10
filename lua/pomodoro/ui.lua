@@ -128,6 +128,10 @@ function UI.updateUi(pomodoro)
             local data = UI.get_buffer_data(pomodoro)
             vim.api.nvim_buf_set_lines(UI.buffer, 0, -1, false, data)
             UI.startRenderingTimer(pomodoro)
+        else
+            if pomodoro.phase == Phases.BREAK then
+                pomodoro.snooze()
+            end
         end
     end)
 end
