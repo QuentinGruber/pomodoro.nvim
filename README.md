@@ -27,4 +27,4 @@ Display time spent on projects / files
 | `:PomodoroUI`         | Display the Pomodoro UI. |
 | `:PomodoroSkipBreak`  | Skip the current break and start the next work session. |
 | `:PomodoroForceBreak` | Forcefully start a break. |
-| `:PomodoroSnooze`     | Delay the current break by a snooze duration. |
+| `:PomodoroDelayBreak` | Delay the current break by a delay duration. |

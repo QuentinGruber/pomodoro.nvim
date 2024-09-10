@@ -16,8 +16,8 @@ local pomodoro = {}
 pomodoro.work_duration = 25 * MIN_IN_MS
 -- Break duration in ms
 pomodoro.break_duration = 5 * MIN_IN_MS
--- Snooze duration in ms
-pomodoro.snooze_duration = 1 * MIN_IN_MS
+-- Delay duration in ms
+pomodoro.delay_duration = 1 * MIN_IN_MS
 pomodoro.timer_duration = 0
 pomodoro.start_at_launch = true
 pomodoro.timer = vim.uv.new_timer()
@@ -76,7 +76,7 @@ function pomodoro.start()
     pomodoro.startTimer(pomodoro.work_duration, pomodoro.startBreak)
 end
 
-function pomodoro.snooze()
+function pomodoro.delayBreak()
     if pomodoro.phase == Phases.BREAK then
         pomodoro.phase = Phases.RUNNING
         pomodoro.closePomodoroUi()
@@ -99,7 +99,11 @@ function pomodoro.registerCmds()
     vim.api.nvim_create_user_command("PomodoroSkipBreak", pomodoro.endBreak, {})
     vim.api.nvim_create_user_command("PomodoroStart", pomodoro.start, {})
     vim.api.nvim_create_user_command("PomodoroStop", pomodoro.stop, {})
-    vim.api.nvim_create_user_command("PomodoroSnooze", pomodoro.snooze, {})
+    vim.api.nvim_create_user_command(
+        "PomodoroDelayBreak",
+        pomodoro.delayBreak,
+        {}
+    )
     vim.api.nvim_create_user_command(
         "PomodoroUI",
         pomodoro.displayPomodoroUI,
@@ -110,7 +114,7 @@ end
 ---@class PomodoroOpts
 ---@field work_duration? number
 ---@field break_duration? number
----@field snooze_duration? number
+---@field delay_duration? number
 ---@field start_at_launch? boolean
 
 ---@param opts PomodoroOpts
@@ -122,8 +126,8 @@ function pomodoro.setup(opts)
         if opts.break_duration ~= nil then
             pomodoro.break_duration = opts.break_duration * MIN_IN_MS
         end
-        if opts.snooze_duration ~= nil then
-            pomodoro.snooze_duration = opts.snooze_duration * MIN_IN_MS
+        if opts.delay_duration ~= nil then
+            pomodoro.delay_duration = opts.delay_duration * MIN_IN_MS
         end
         if opts.start_at_launch ~= nil then
             pomodoro.start_at_launch = opts.start_at_launch
