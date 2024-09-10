@@ -41,7 +41,7 @@ local function apply_buffer_keymaps(buffer)
     set_command_key(buffer, "n", "Q", "PomodoroStop")
     set_command_key(buffer, "n", "W", "PomodoroSkipBreak")
     set_command_key(buffer, "n", "B", "PomodoroForceBreak")
-    set_command_key(buffer, "n", "S", "PomodoroSnooze")
+    set_command_key(buffer, "n", "D", "PomodoroDelayBreak")
 end
 ---@return integer
 local function createBufferUi()
@@ -110,7 +110,7 @@ function UI.get_buffer_data(pomodoro)
         table.insert(data, spaces(1) .. "Time to take a break !")
         table.insert(data, spaces(5) .. time_left_string)
         table.insert(data, "[W] Work [Q] Stop")
-        table.insert(data, "[S] Snooze")
+        table.insert(data, "[D] DelayBreak")
     end
     return data
 end
@@ -130,7 +130,7 @@ function UI.updateUi(pomodoro)
             UI.startRenderingTimer(pomodoro)
         else
             if pomodoro.phase == Phases.BREAK then
-                pomodoro.snooze()
+                pomodoro.delayBreak()
             end
         end
     end)
