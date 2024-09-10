@@ -22,9 +22,9 @@ Display time spent on projects / files
 
 | Command               | Description |
 | --------------------- | ----------- |
-| `:PomodoroStart`      |             |
-| `:PomodoroStop`       |             |
-| `:PomodoroUI`         |             |
-| `:PomodoroSkipBreak`  |             |
-| `:PomodoroForceBreak` |             |
-| `:PomodoroSnooze`     |             |
+| `:PomodoroStart`      | Start the Pomodoro timer. |
+| `:PomodoroStop`       | Stop the Pomodoro timer. |
+| `:PomodoroUI`         | Display the Pomodoro UI. |
+| `:PomodoroSkipBreak`  | Skip the current break and start the next work session. |
+| `:PomodoroForceBreak` | Forcefully start a break. |
+| `:PomodoroSnooze`     | Delay the current break by a snooze duration. |
