@@ -67,8 +67,8 @@ local function createBufferUi()
 end
 ---@return table
 local function createBufferOpts()
-    local win_width = 100
-    local win_height = 20
+    local win_width = 25
+    local win_height = 5
     local row = math.floor((vim.o.lines - win_height) / 2)
     local col = math.floor((vim.o.columns - win_width) / 2)
 
@@ -95,14 +95,25 @@ UI.buffer_opts = createBufferOpts()
 UI.ui_update_timer = vim.uv.new_timer()
 UI.win = nil
 
+---@return string
+local function spaces(nb)
+    local s = " "
+    for _ = 0, nb do
+        s = s .. " "
+    end
+
+    return s
+end
+
 ---@param pomodoro Pomodoro
 function UI.get_buffer_data(pomodoro)
     local time_left = pomodoro.getTimeLeftPhase()
     local time_left_string
     if time_left > MIN_IN_MS then
-        time_left_string = "Time left : "
-            .. math.floor(time_left / MIN_IN_MS)
+        time_left_string = math.floor(time_left / MIN_IN_MS)
             .. "min"
+            .. math.floor(time_left % MIN_IN_MS / 1000)
+            .. "sec"
     else
         time_left_string = "Time left : "
             .. math.floor(time_left / 1000)
@@ -110,12 +121,14 @@ function UI.get_buffer_data(pomodoro)
     end
     local data = {}
     if pomodoro.phase == Phases.RUNNING then
-        table.insert(data, "Time to work !")
+        table.insert(data, spaces(7) .. "[WORK]")
+        table.insert(data, spaces(4) .. "Time to work !")
     end
     if pomodoro.phase == Phases.BREAK then
-        table.insert(data, "Time to take a break !")
+        table.insert(data, spaces(7) .. "[BREAK]")
+        table.insert(data, spaces(1) .. "Time to take a break !")
     end
-    table.insert(data, time_left_string)
+    table.insert(data, spaces(5) .. time_left_string)
     return data
 end
 function UI.isWinOpen()
