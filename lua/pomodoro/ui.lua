@@ -1,4 +1,5 @@
 local constants = require("pomodoro.constants")
+local uv = require("pomodoro.uv")
 local MIN_IN_MS = constants.MIN_IN_MS
 local Phases = constants.Phases
 
@@ -76,7 +77,7 @@ end
 local UI = {}
 UI.buffer = createBufferUi()
 UI.buffer_opts = createBufferOpts()
-UI.ui_update_timer = vim.uv.new_timer()
+UI.ui_update_timer = uv.new_timer()
 UI.win = nil
 
 ---@return string
@@ -91,7 +92,7 @@ end
 
 ---@param pomodoro Pomodoro
 function UI.get_buffer_data(pomodoro)
-    local time_pass = vim.uv.now() - pomodoro.started_timer_time
+    local time_pass = uv.now() - pomodoro.started_timer_time
     local time_left = pomodoro.timer_duration - time_pass
     local time_left_string
     time_left_string = math.floor(time_left / MIN_IN_MS)

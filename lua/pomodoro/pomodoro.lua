@@ -1,5 +1,6 @@
 local UI = require("pomodoro.ui")
 local constants = require("pomodoro.constants")
+local uv = require("pomodoro.uv")
 local MIN_IN_MS = constants.MIN_IN_MS
 local Phases = constants.Phases
 
@@ -20,8 +21,8 @@ pomodoro.break_duration = 5 * MIN_IN_MS
 pomodoro.delay_duration = 1 * MIN_IN_MS
 pomodoro.timer_duration = 0
 pomodoro.start_at_launch = true
-pomodoro.timer = vim.uv.new_timer()
-pomodoro.started_timer_time = vim.uv.now()
+pomodoro.timer = uv.new_timer()
+pomodoro.started_timer_time = uv.now()
 pomodoro.phase = Phases.NOT_RUNNING
 
 ---@param time number
@@ -29,7 +30,7 @@ pomodoro.phase = Phases.NOT_RUNNING
 function pomodoro.startTimer(time, fn)
     pomodoro.timer:stop()
     pomodoro.timer_duration = time
-    pomodoro.started_timer_time = vim.uv.now()
+    pomodoro.started_timer_time = uv.now()
     pomodoro.timer:start(time, 0, fn)
 end
 
