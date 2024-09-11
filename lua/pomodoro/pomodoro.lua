@@ -1,6 +1,8 @@
 local UI = require("pomodoro.ui")
 local constants = require("pomodoro.constants")
 local uv = require("pomodoro.uv")
+local log = require("pomodoro.log")
+local info = log.info
 local MIN_IN_MS = constants.MIN_IN_MS
 local Phases = constants.Phases
 
@@ -38,7 +40,7 @@ end
 
 function pomodoro.displayPomodoroUI()
     if pomodoro.phase == Phases.NOT_RUNNING or pomodoro.phase == nil then
-        vim.notify("Can't display pomodoro ui when pomodoro isn't running")
+        info("Can't display pomodoro ui when pomodoro isn't running")
         return
     end
     if UI.isWinOpen() ~= true then
@@ -52,13 +54,8 @@ function pomodoro.closePomodoroUi()
     UI.close()
 end
 
-function pomodoro.delayBreak()
-    pomodoro.startTimer(MIN_IN_MS, pomodoro.startBreak)
-end
 function pomodoro.startBreak()
-    vim.notify(
-        "Break of " .. pomodoro.break_duration / MIN_IN_MS .. "m started!"
-    )
+    info("Break of " .. pomodoro.break_duration / MIN_IN_MS .. "m started!")
     pomodoro.phase = Phases.BREAK
     vim.schedule(pomodoro.displayPomodoroUI)
     pomodoro.startTimer(pomodoro.break_duration, pomodoro.endBreak)
@@ -70,8 +67,8 @@ function pomodoro.endBreak()
 end
 
 function pomodoro.start()
-    vim.notify(
-        "Pomodoro of " .. pomodoro.work_duration / MIN_IN_MS .. "m started!"
+    info(
+        "Work session of " .. pomodoro.work_duration / MIN_IN_MS .. "m started!"
     )
     pomodoro.phase = Phases.RUNNING
     pomodoro.startTimer(pomodoro.work_duration, pomodoro.startBreak)
