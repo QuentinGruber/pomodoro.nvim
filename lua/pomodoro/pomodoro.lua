@@ -40,14 +40,17 @@ end
 
 function pomodoro.displayPomodoroUI()
     if pomodoro.phase == Phases.NOT_RUNNING or pomodoro.phase == nil then
-        info("Can't display pomodoro ui when pomodoro isn't running")
-        return
+        pomodoro.start()
     end
     if UI.isWinOpen() ~= true then
         if UI.ui_update_timer:is_active() ~= true then
             UI.updateUi(pomodoro)
         end
         UI.win = vim.api.nvim_open_win(UI.buffer, true, UI.buffer_opts)
+    else
+        if pomodoro.phase ~= Phases.BREAK then
+            UI.close()
+        end
     end
 end
 function pomodoro.closePomodoroUi()
@@ -83,9 +86,11 @@ function pomodoro.delayBreak()
 end
 
 function pomodoro.stop()
+    pomodoro.phase = Phases.NOT_RUNNING
     pomodoro.timer:stop()
     UI.ui_update_timer:stop()
     pomodoro.closePomodoroUi()
+    info("Stopped")
 end
 
 function pomodoro.registerCmds()
