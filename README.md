@@ -1,6 +1,9 @@
 # pomodoro.nvim
 
 Use the Pomodoro Technique in Neovim with built-in session tracking and break reminders.
+
+![Preview](./preview.png)
+
 - install using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
@@ -19,11 +22,11 @@ Use the Pomodoro Technique in Neovim with built-in session tracking and break re
 
 ## Usage
 
-| Command               | Description |
-| --------------------- | ----------- |
-| `:PomodoroStart`      | Start the Pomodoro timer. |
-| `:PomodoroStop`       | Stop the Pomodoro timer. |
-| `:PomodoroUI`         | Display the Pomodoro UI. |
+| Command               | Description                                             |
+| --------------------- | ------------------------------------------------------- |
+| `:PomodoroStart`      | Start the Pomodoro timer.                               |
+| `:PomodoroStop`       | Stop the Pomodoro timer.                                |
+| `:PomodoroUI`         | Display the Pomodoro UI.                                |
 | `:PomodoroSkipBreak`  | Skip the current break and start the next work session. |
-| `:PomodoroForceBreak` | Forcefully start a break. |
-| `:PomodoroDelayBreak` | Delay the current break by a delay duration. |
+| `:PomodoroForceBreak` | Forcefully start a break.                               |
+| `:PomodoroDelayBreak` | Delay the current break by a delay duration.            |
