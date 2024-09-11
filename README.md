@@ -1,7 +1,6 @@
 # pomodoro.nvim
 
-Display time spent on projects / files
-
+Use the Pomodoro Technique in Neovim with built-in session tracking and break reminders.
 - install using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
