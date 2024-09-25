@@ -3,6 +3,10 @@ local uv = require("pomodoro.uv")
 local MIN_IN_MS = constants.MIN_IN_MS
 local Phases = constants.Phases
 
+-- Disable a keymap for a given buffer
+---@param buffer integer --
+---@param mode string --
+---@param key string --
 local function disable_key(buffer, mode, key)
   vim.api.nvim_buf_set_keymap(
     buffer,
@@ -13,6 +17,10 @@ local function disable_key(buffer, mode, key)
   )
 end
 
+-- Set an exit key for a buffer
+---@param buffer integer --
+---@param mode string --
+---@param key string --
 local function set_command_key(buffer, mode, key, command)
   vim.api.nvim_buf_set_keymap(
     buffer,
@@ -23,6 +31,8 @@ local function set_command_key(buffer, mode, key, command)
   )
 end
 
+-- Apply custom keymaps to a buffer
+---@param buffer integer --
 local function apply_buffer_keymaps(buffer)
   disable_key(buffer, "n", "d")
   disable_key(buffer, "n", "i")
@@ -36,12 +46,14 @@ local function apply_buffer_keymaps(buffer)
   set_command_key(buffer, "n", "D", "PomodoroDelayBreak")
 end
 
+---@return integer
 local function createBufferUi()
   local buffer = vim.api.nvim_create_buf(false, true)
   apply_buffer_keymaps(buffer)
   return buffer
 end
 
+---@return table
 local function createBufferOpts()
   local win_width = 40
   local win_height = 8
@@ -60,22 +72,30 @@ local function createBufferOpts()
   return opts
 end
 
+---@class PomodoroUI
+---@field ui_update_timer uv_timer_t
+---@field buffer integer
+---@field buffer_opts table
+---@field win? integer
 local UI = {}
 UI.buffer = createBufferUi()
 UI.buffer_opts = createBufferOpts()
 UI.ui_update_timer = uv.new_timer()
 UI.win = nil
 
+---@return string
 local function center(str, width)
   local padding = width - #str
   return string.rep(" ", math.floor(padding / 2)) .. str
 end
 
+---@return string
 local function progress_bar(current, total, width)
   local filled = math.floor(current / total * width)
   return "[" .. string.rep("=", filled) .. string.rep(" ", width - filled) .. "]"
 end
 
+---@param pomodoro Pomodoro
 function UI.get_buffer_data(pomodoro)
   local time_pass = uv.now() - pomodoro.started_timer_time
   local time_left = pomodoro.timer_duration - time_pass
@@ -114,6 +134,8 @@ function UI.isWinOpen()
   return vim.api.nvim_win_is_valid(UI.win)
 end
 
+-- update the UI time and in which phase we are
+---@param pomodoro Pomodoro
 function UI.updateUi(pomodoro)
   vim.schedule(function()
     if UI.isWinOpen() then
@@ -128,6 +150,7 @@ function UI.updateUi(pomodoro)
   end)
 end
 
+---@param pomodoro Pomodoro
 function UI.startRenderingTimer(pomodoro)
   UI.ui_update_timer:stop()
   UI.ui_update_timer:start(1000, 0, function()
