@@ -30,6 +30,7 @@ local function set_command_key(buffer, mode, key, command)
         { noremap = true, silent = true }
     )
 end
+
 -- Apply custom keymaps to a buffer
 ---@param buffer integer --
 local function apply_buffer_keymaps(buffer)
@@ -44,16 +45,18 @@ local function apply_buffer_keymaps(buffer)
     set_command_key(buffer, "n", "B", "PomodoroForceBreak")
     set_command_key(buffer, "n", "D", "PomodoroDelayBreak")
 end
+
 ---@return integer
 local function createBufferUi()
-    local buffer = vim.api.nvim_create_buf(false, true) -- Create a new buffer, not listed, scratch buffer
+    local buffer = vim.api.nvim_create_buf(false, true)
     apply_buffer_keymaps(buffer)
     return buffer
 end
+
 ---@return table
 local function createBufferOpts()
-    local win_width = 25
-    local win_height = 5
+    local win_width = 40
+    local win_height = 8
     local row = math.floor((vim.o.lines - win_height) / 2)
     local col = math.floor((vim.o.columns - win_width) / 2)
 
@@ -64,7 +67,7 @@ local function createBufferOpts()
         height = win_height,
         row = row,
         col = col,
-        border = "single",
+        border = "rounded",
     }
     return opts
 end
@@ -81,46 +84,65 @@ UI.ui_update_timer = uv.new_timer()
 UI.win = nil
 
 ---@return string
-local function spaces(nb)
-    local s = " "
-    for _ = 0, nb do
-        s = s .. " "
-    end
+local function center(str, width)
+    local padding = width - #str
+    return string.rep(" ", math.floor(padding / 2)) .. str
+end
 
-    return s
+---@return string
+local function progress_bar(current, total, width)
+    local filled = math.floor(current / total * width)
+    return "["
+        .. string.rep("=", filled)
+        .. string.rep(" ", width - filled)
+        .. "]"
 end
 
 ---@param pomodoro Pomodoro
 function UI.get_buffer_data(pomodoro)
     local time_pass = uv.now() - pomodoro.started_timer_time
     local time_left = pomodoro.timer_duration - time_pass
-    local time_left_string
-    time_left_string = math.floor(time_left / MIN_IN_MS)
-        .. "min"
-        .. math.floor(time_left % MIN_IN_MS / 1000)
-        .. "sec"
+    local minutes = math.floor(time_left / MIN_IN_MS)
+    local seconds = math.floor((time_left % MIN_IN_MS) / 1000)
+    local time_left_string = string.format("%02d:%02d", minutes, seconds)
+
     local data = {}
+    local width = UI.buffer_opts.width - 2 -- Account for borders
+
     if pomodoro.phase == Phases.RUNNING then
-        table.insert(data, spaces(7) .. "[WORK]")
-        table.insert(data, spaces(4) .. "Time to work !")
-        table.insert(data, spaces(5) .. time_left_string)
-        table.insert(data, spaces(2) .. "[B] Break [Q] Stop")
+        table.insert(data, center("🍅 POMODORO", width))
+        table.insert(data, center(time_left_string, width))
+        table.insert(
+            data,
+            progress_bar(time_pass, pomodoro.timer_duration, width)
+        )
+        table.insert(data, "")
+        table.insert(data, center("Time to work!", width))
+        table.insert(data, "")
+        table.insert(data, center("[B]reak  [Q]uit", width))
+    elseif pomodoro.phase == Phases.BREAK then
+        table.insert(data, center("☕ BREAK TIME", width))
+        table.insert(data, center(time_left_string, width))
+        table.insert(
+            data,
+            progress_bar(time_pass, pomodoro.timer_duration, width)
+        )
+        table.insert(data, "")
+        table.insert(data, center("Time to relax!", width))
+        table.insert(data, "")
+        table.insert(data, center("[W]ork  [Q]uit  [D]elay", width))
     end
-    if pomodoro.phase == Phases.BREAK then
-        table.insert(data, spaces(7) .. "[BREAK]")
-        table.insert(data, spaces(1) .. "Time to take a break !")
-        table.insert(data, spaces(5) .. time_left_string)
-        table.insert(data, "[W] Work [Q] Stop")
-        table.insert(data, "[D] DelayBreak")
-    end
+
     return data
 end
+
 function UI.isWinOpen()
     if UI.win == nil then
         return false
     end
     return vim.api.nvim_win_is_valid(UI.win)
 end
+
 -- update the UI time and in which phase we are
 ---@param pomodoro Pomodoro
 function UI.updateUi(pomodoro)
@@ -136,6 +158,7 @@ function UI.updateUi(pomodoro)
         end
     end)
 end
+
 ---@param pomodoro Pomodoro
 function UI.startRenderingTimer(pomodoro)
     UI.ui_update_timer:stop()
@@ -143,6 +166,7 @@ function UI.startRenderingTimer(pomodoro)
         UI.updateUi(pomodoro)
     end)
 end
+
 function UI.close()
     if UI.isWinOpen() then
         vim.api.nvim_win_close(UI.win, true)

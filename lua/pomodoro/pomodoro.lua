@@ -36,8 +36,6 @@ function pomodoro.startTimer(time, fn)
     pomodoro.timer:start(time, 0, fn)
 end
 
----@return boolean
-
 function pomodoro.displayPomodoroUI()
     if pomodoro.phase == Phases.NOT_RUNNING or pomodoro.phase == nil then
         pomodoro.start()
@@ -53,6 +51,7 @@ function pomodoro.displayPomodoroUI()
         end
     end
 end
+
 function pomodoro.closePomodoroUi()
     UI.close()
 end
@@ -63,6 +62,7 @@ function pomodoro.startBreak()
     vim.schedule(pomodoro.displayPomodoroUI)
     pomodoro.startTimer(pomodoro.break_duration, pomodoro.endBreak)
 end
+
 function pomodoro.endBreak()
     vim.schedule(pomodoro.closePomodoroUi)
     pomodoro.phase = Phases.RUNNING
