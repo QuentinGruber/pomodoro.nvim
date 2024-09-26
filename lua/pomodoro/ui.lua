@@ -121,7 +121,11 @@ function UI.get_buffer_data(pomodoro)
         table.insert(data, "")
         table.insert(data, center("[B]reak  [Q]uit", width))
     elseif pomodoro.phase == Phases.BREAK then
-        table.insert(data, center("☕ BREAK TIME", width))
+        if pomodoro.isInLongBreak() then
+            table.insert(data, center("☕ LONG BREAK TIME", width))
+        else
+            table.insert(data, center("☕ BREAK TIME", width))
+        end
         table.insert(data, center(time_left_string, width))
         table.insert(
             data,

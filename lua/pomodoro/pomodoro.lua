@@ -9,6 +9,8 @@ local Phases = constants.Phases
 ---@class Pomodoro
 ---@field work_duration number
 ---@field break_duration number
+---@field long_break_duration number
+---@field break_count number
 ---@field timer_duration number
 ---@field start_at_launch boolean
 ---@field timer uv_timer_t
@@ -19,8 +21,11 @@ local pomodoro = {}
 pomodoro.work_duration = 25 * MIN_IN_MS
 -- Break duration in ms
 pomodoro.break_duration = 5 * MIN_IN_MS
+-- Break duration in ms
+pomodoro.long_break_duration = 15 * MIN_IN_MS
 -- Delay duration in ms
 pomodoro.delay_duration = 1 * MIN_IN_MS
+pomodoro.break_count = 0
 pomodoro.timer_duration = 0
 pomodoro.start_at_launch = true
 pomodoro.timer = uv.new_timer()
@@ -56,11 +61,24 @@ function pomodoro.closePomodoroUi()
     UI.close()
 end
 
+---@return boolean
+function pomodoro.isInLongBreak()
+    return pomodoro.break_count % 4 == 0 and pomodoro.phase == Phases.BREAK
+end
+
 function pomodoro.startBreak()
-    info("Break of " .. pomodoro.break_duration / MIN_IN_MS .. "m started!")
     pomodoro.phase = Phases.BREAK
+    pomodoro.break_count = pomodoro.break_count + 1
+    local break_duration
+    if pomodoro.isInLongBreak() then
+        break_duration = pomodoro.long_break_duration
+    else
+        break_duration = pomodoro.break_duration
+    end
+
+    info("Break of " .. break_duration / MIN_IN_MS .. "m started!")
     vim.schedule(pomodoro.displayPomodoroUI)
-    pomodoro.startTimer(pomodoro.break_duration, pomodoro.endBreak)
+    pomodoro.startTimer(break_duration, pomodoro.endBreak)
 end
 
 function pomodoro.endBreak()
@@ -80,6 +98,8 @@ end
 function pomodoro.delayBreak()
     if pomodoro.phase == Phases.BREAK then
         pomodoro.phase = Phases.RUNNING
+        -- So if a long break is delayed the next break is still a long one
+        pomodoro.break_count = pomodoro.break_count - 1
         pomodoro.closePomodoroUi()
         pomodoro.startTimer(MIN_IN_MS, pomodoro.startBreak)
     end
@@ -117,6 +137,7 @@ end
 ---@class PomodoroOpts
 ---@field work_duration? number
 ---@field break_duration? number
+---@field long_break_duration? number
 ---@field delay_duration? number
 ---@field start_at_launch? boolean
 
@@ -128,6 +149,9 @@ function pomodoro.setup(opts)
         end
         if opts.break_duration ~= nil then
             pomodoro.break_duration = opts.break_duration * MIN_IN_MS
+        end
+        if opts.long_break_duration ~= nil then
+            pomodoro.long_break_duration = opts.long_break_duration * MIN_IN_MS
         end
         if opts.delay_duration ~= nil then
             pomodoro.delay_duration = opts.delay_duration * MIN_IN_MS
