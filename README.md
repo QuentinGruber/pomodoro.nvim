@@ -4,7 +4,6 @@ Use the Pomodoro Technique in Neovim with built-in session tracking and break re
 
 ![image](https://github.com/user-attachments/assets/71b3b980-4d4a-433f-b847-689794c35709)
 
-
 - install using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
@@ -19,6 +18,24 @@ Use the Pomodoro Technique in Neovim with built-in session tracking and break re
       long_break_duration = 15,
       breaks_before_long = 4,
     },
+  },
+
+```
+
+## Setup pomodoro display in lualine
+
+```lua
+  {
+    "nvim-lualine/lualine.nvim",
+    optional = true,
+    event = "VeryLazy",
+    opts = function(_, opts)
+      table.insert(opts.sections.lualine_x, 3, {
+        function()
+          return require("pomodoro").get_pomodoro_status()
+        end,
+      })
+    end,
   },
 
 ```
