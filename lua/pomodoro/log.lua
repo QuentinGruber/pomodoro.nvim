@@ -3,10 +3,15 @@ local log = {}
 local p = "[pomodoro.nvim] "
 
 function log.info(txt)
-    vim.notify(p .. txt)
+    vim.schedule(function()
+        vim.notify(p .. txt)
+    end)
 end
 
 function log.error(txt)
-    vim.notify(p .. txt)
+    vim.schedule(function()
+        vim.notify(p .. txt)
+    end)
 end
+
 return log
