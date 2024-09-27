@@ -49,11 +49,12 @@ function pomodoro.get_pomodoro_status()
 
     local phase_str = ""
     if pomodoro.phase == Phases.NOT_RUNNING then
-        phase_str = "Not Running"
+        phase_str = "🍅❌"
+        time_left = 0
     elseif pomodoro.phase == Phases.RUNNING then
-        phase_str = "Work"
+        phase_str = "🍅"
     elseif pomodoro.phase == Phases.BREAK then
-        phase_str = "Break"
+        phase_str = "☕"
     end
 
     local minutes = math.floor(time_left / 60000)
