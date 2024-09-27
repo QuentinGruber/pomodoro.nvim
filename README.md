@@ -4,7 +4,7 @@ Use the Pomodoro Technique in Neovim with built-in session tracking and break re
 
 ![image](https://github.com/user-attachments/assets/71b3b980-4d4a-433f-b847-689794c35709)
 
-- install using [lazy.nvim](https://github.com/folke/lazy.nvim)
+## Install using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
   {
