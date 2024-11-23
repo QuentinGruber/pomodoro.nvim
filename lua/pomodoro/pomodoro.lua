@@ -43,18 +43,38 @@ function pomodoro.startTimer(time, fn)
     pomodoro.timer:start(time, 0, fn)
 end
 
-function pomodoro.get_pomodoro_status()
+---@param not_running_phase? string
+---@param running_phase? string
+---@param break_phase? string
+---@return string
+function pomodoro.get_pomodoro_status(
+    not_running_phase,
+    running_phase,
+    break_phase
+)
     local time_left = pomodoro.timer_duration
         - (uv.now() - pomodoro.started_timer_time)
 
     local phase_str = ""
     if pomodoro.phase == Phases.NOT_RUNNING then
-        phase_str = "🍅❌"
+        if not_running_phase then
+            phase_str = not_running_phase
+        else
+            phase_str = "🍅❌"
+        end
         time_left = 0
     elseif pomodoro.phase == Phases.RUNNING then
-        phase_str = "🍅"
+        if running_phase then
+            phase_str = running_phase
+        else
+            phase_str = "🍅"
+        end
     elseif pomodoro.phase == Phases.BREAK then
-        phase_str = "☕"
+        if break_phase then
+            phase_str = break_phase
+        else
+            phase_str = "☕"
+        end
     end
 
     local minutes = math.floor(time_left / 60000)

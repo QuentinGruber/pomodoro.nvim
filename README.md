@@ -32,7 +32,7 @@ Use the Pomodoro Technique in Neovim with built-in session tracking and break re
     opts = function(_, opts)
       table.insert(opts.sections.lualine_x, 3, {
         function()
-          return require("pomodoro").get_pomodoro_status()
+          return require("pomodoro").get_pomodoro_status("🍅❌","🍅","☕")
         end,
       })
     end,
