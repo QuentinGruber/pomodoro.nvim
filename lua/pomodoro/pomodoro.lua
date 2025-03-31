@@ -110,14 +110,12 @@ function pomodoro.isInLongBreak()
         and pomodoro.phase == Phases.BREAK
 end
 
-function pomodoro.startBreak()
+function pomodoro.startBreak(time)
+    local break_duration = time * MIN_IN_MS or pomodoro.break_duration
     pomodoro.phase = Phases.BREAK
     pomodoro.break_count = pomodoro.break_count + 1
-    local break_duration
     if pomodoro.isInLongBreak() then
         break_duration = pomodoro.long_break_duration
-    else
-        break_duration = pomodoro.break_duration
     end
 
     info("Break of " .. break_duration / MIN_IN_MS .. "m started!")
@@ -131,12 +129,11 @@ function pomodoro.endBreak()
     pomodoro.start()
 end
 
-function pomodoro.start()
-    info(
-        "Work session of " .. pomodoro.work_duration / MIN_IN_MS .. "m started!"
-    )
+function pomodoro.start(time)
+    local work_duration = time * MIN_IN_MS or pomodoro.work_duration
+    info("Work session of " .. work_duration / MIN_IN_MS .. "m started!")
     pomodoro.phase = Phases.RUNNING
-    pomodoro.startTimer(pomodoro.work_duration, pomodoro.startBreak)
+    pomodoro.startTimer(work_duration, pomodoro.startBreak)
 end
 
 function pomodoro.delayBreak()
