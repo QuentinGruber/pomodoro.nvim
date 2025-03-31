@@ -111,6 +111,7 @@ function pomodoro.isInLongBreak()
 end
 
 function pomodoro.startBreak(time)
+    assert(type(time) == "number", "Expected a number value")
     local break_duration = time * MIN_IN_MS or pomodoro.break_duration
     pomodoro.phase = Phases.BREAK
     pomodoro.break_count = pomodoro.break_count + 1
@@ -130,6 +131,7 @@ function pomodoro.endBreak()
 end
 
 function pomodoro.start(time)
+    assert(type(time) == "number", "Expected a number value")
     local work_duration = time * MIN_IN_MS or pomodoro.work_duration
     info("Work session of " .. work_duration / MIN_IN_MS .. "m started!")
     pomodoro.phase = Phases.RUNNING
@@ -156,13 +158,15 @@ function pomodoro.stop()
 end
 
 function pomodoro.registerCmds()
-    vim.api.nvim_create_user_command(
-        "PomodoroForceBreak",
-        pomodoro.startBreak,
-        {}
-    )
+    vim.api.nvim_create_user_command("PomodoroForceBreak", function(opts)
+        local break_duration = tonumber(opts.args) or pomodoro.break_duration
+        pomodoro.startBreak(break_duration) -- or some default value
+    end, { nargs = "*" })
     vim.api.nvim_create_user_command("PomodoroSkipBreak", pomodoro.endBreak, {})
-    vim.api.nvim_create_user_command("PomodoroStart", pomodoro.start, {})
+    vim.api.nvim_create_user_command("PomodoroStart", function(opts)
+        local work_duration = tonumber(opts.args) or pomodoro.work_duration
+        pomodoro.start(work_duration) -- or some default value
+    end, { nargs = "*" })
     vim.api.nvim_create_user_command("PomodoroStop", pomodoro.stop, {})
     vim.api.nvim_create_user_command(
         "PomodoroDelayBreak",
