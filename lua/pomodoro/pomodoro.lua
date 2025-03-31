@@ -111,8 +111,7 @@ function pomodoro.isInLongBreak()
 end
 
 function pomodoro.startBreak(time)
-    assert(type(time) == "number", "Expected a number value")
-    local break_duration = time * MIN_IN_MS or pomodoro.break_duration
+    local break_duration = tonumber(time) * MIN_IN_MS or pomodoro.break_duration
     pomodoro.phase = Phases.BREAK
     pomodoro.break_count = pomodoro.break_count + 1
     if pomodoro.isInLongBreak() then
@@ -131,8 +130,7 @@ function pomodoro.endBreak()
 end
 
 function pomodoro.start(time)
-    assert(type(time) == "number", "Expected a number value")
-    local work_duration = time * MIN_IN_MS or pomodoro.work_duration
+    local work_duration = tonumber(time) * MIN_IN_MS or pomodoro.work_duration
     info("Work session of " .. work_duration / MIN_IN_MS .. "m started!")
     pomodoro.phase = Phases.RUNNING
     pomodoro.startTimer(work_duration, pomodoro.startBreak)
