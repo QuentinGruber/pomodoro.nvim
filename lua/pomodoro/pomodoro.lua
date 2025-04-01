@@ -110,14 +110,18 @@ function pomodoro.isInLongBreak()
         and pomodoro.phase == Phases.BREAK
 end
 
-function pomodoro.startBreak()
-    pomodoro.phase = Phases.BREAK
-    pomodoro.break_count = pomodoro.break_count + 1
+---@param forced_time? number
+function pomodoro.startBreak(forced_time)
     local break_duration
-    if pomodoro.isInLongBreak() then
-        break_duration = pomodoro.long_break_duration
+    if forced_time then
+        break_duration = forced_time * MIN_IN_MS
     else
         break_duration = pomodoro.break_duration
+    end
+    pomodoro.phase = Phases.BREAK
+    pomodoro.break_count = pomodoro.break_count + 1
+    if pomodoro.isInLongBreak() and not forced_time then
+        break_duration = pomodoro.long_break_duration
     end
 
     info("Break of " .. break_duration / MIN_IN_MS .. "m started!")
@@ -131,12 +135,17 @@ function pomodoro.endBreak()
     pomodoro.start()
 end
 
-function pomodoro.start()
-    info(
-        "Work session of " .. pomodoro.work_duration / MIN_IN_MS .. "m started!"
-    )
+---@param forced_time? number
+function pomodoro.start(forced_time)
+    local work_duration
+    if forced_time then
+        work_duration = forced_time * MIN_IN_MS
+    else
+        work_duration = pomodoro.work_duration
+    end
+    info("Work session of " .. work_duration / MIN_IN_MS .. "m started!")
     pomodoro.phase = Phases.RUNNING
-    pomodoro.startTimer(pomodoro.work_duration, pomodoro.startBreak)
+    pomodoro.startTimer(work_duration, pomodoro.startBreak)
 end
 
 function pomodoro.delayBreak()
@@ -159,13 +168,23 @@ function pomodoro.stop()
 end
 
 function pomodoro.registerCmds()
-    vim.api.nvim_create_user_command(
-        "PomodoroForceBreak",
-        pomodoro.startBreak,
-        {}
-    )
+    vim.api.nvim_create_user_command("PomodoroForceBreak", function(opts)
+        local forced_break_duration = tonumber(opts.args)
+        if forced_break_duration then
+            pomodoro.startBreak(forced_break_duration)
+        else
+            pomodoro.startBreak()
+        end
+    end, { nargs = "*" })
     vim.api.nvim_create_user_command("PomodoroSkipBreak", pomodoro.endBreak, {})
-    vim.api.nvim_create_user_command("PomodoroStart", pomodoro.start, {})
+    vim.api.nvim_create_user_command("PomodoroStart", function(opts)
+        local forced_work_duration = tonumber(opts.args)
+        if forced_work_duration then
+            pomodoro.start(forced_work_duration)
+        else
+            pomodoro.start()
+        end
+    end, { nargs = "*" })
     vim.api.nvim_create_user_command("PomodoroStop", pomodoro.stop, {})
     vim.api.nvim_create_user_command(
         "PomodoroDelayBreak",
