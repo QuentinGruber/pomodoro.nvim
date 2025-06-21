@@ -17,6 +17,7 @@ Use the Pomodoro Technique in Neovim with built-in session tracking and break re
       delay_duration = 1, -- The additionnal work time you get when you delay a break
       long_break_duration = 15,
       breaks_before_long = 4,
+      display_ui_on_break = true, -- Disable it if you only want to see the lualine
     },
   },
 
