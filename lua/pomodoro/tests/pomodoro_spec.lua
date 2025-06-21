@@ -12,6 +12,7 @@ describe("useless tests", function()
         opts.long_break_duration = 15
         opts.breaks_before_long = 4
         opts.start_at_launch = false
+        opts.display_ui_on_break = false
         pomodoro.setup(opts)
         assert(
             pomodoro.work_duration == opts.work_duration * MIN_IN_MS,
@@ -36,6 +37,10 @@ describe("useless tests", function()
         assert(
             pomodoro.start_at_launch == opts.start_at_launch,
             "Opt start_at_launch"
+        )
+        assert(
+            pomodoro.display_ui_on_break == opts.display_ui_on_break,
+            "Opt display_ui_on_break"
         )
     end)
     --TODO: tests

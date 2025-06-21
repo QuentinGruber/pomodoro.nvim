@@ -16,6 +16,7 @@ local Phases = constants.Phases
 ---@field start_at_launch boolean
 ---@field timer uv_timer_t
 ---@field phase integer
+---@field display_ui_on_break boolean
 local pomodoro = {}
 
 -- Work duration in ms
@@ -33,6 +34,7 @@ pomodoro.start_at_launch = true
 pomodoro.timer = uv.new_timer()
 pomodoro.started_timer_time = uv.now()
 pomodoro.phase = Phases.NOT_RUNNING
+pomodoro.display_ui_on_break = true
 
 ---@param time number
 ---@param fn function
@@ -125,7 +127,9 @@ function pomodoro.startBreak(forced_time)
     end
 
     info("Break of " .. break_duration / MIN_IN_MS .. "m started!")
-    vim.schedule(pomodoro.displayPomodoroUI)
+    if pomodoro.display_ui_on_break then
+        vim.schedule(pomodoro.displayPomodoroUI)
+    end
     pomodoro.startTimer(break_duration, pomodoro.endBreak)
 end
 
@@ -205,6 +209,7 @@ end
 ---@field delay_duration? number
 ---@field breaks_before_long? number
 ---@field start_at_launch? boolean
+---@field display_ui_on_break? boolean
 
 ---@param opts PomodoroOpts
 function pomodoro.setup(opts)
@@ -226,6 +231,9 @@ function pomodoro.setup(opts)
         end
         if opts.start_at_launch ~= nil then
             pomodoro.start_at_launch = opts.start_at_launch
+        end
+        if opts.display_ui_on_break ~= nil then
+            pomodoro.display_ui_on_break = opts.display_ui_on_break
         end
     end
 
